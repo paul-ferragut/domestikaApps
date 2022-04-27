@@ -18,7 +18,7 @@ void ofApp::setup(){
 
 	ofSetVerticalSync(true);
 
-	int num = 10000;
+	int num = 5000;
 	p.assign(num, particle());
 	
 	resetParticles();

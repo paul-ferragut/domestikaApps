@@ -48,3 +48,5 @@
 *.db
 *.opendb
 domestikaFinalExtended/.vs/domestikaFinalExtended/v17/.suo
+*.bin
+*.json
