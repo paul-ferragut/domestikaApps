@@ -5,6 +5,7 @@
 #include "ofxOpenCv.h"
 #include "particle.h"
 #include "vectorField.h"
+#include "ofxGui.h"
 
 class ofApp : public ofBaseApp{
 
@@ -43,8 +44,22 @@ class ofApp : public ofBaseApp{
 		void resetParticles();
 		vector<particle>p;
 
-		ofColor col[5];
+		ofColor col[4];
 
 		vectorField vf;
 		
+		ofxPanel gui;
+		ofxToggle showCV;
+		ofxFloatSlider thresholdCV;
+		ofxToggle captureBackground;
+		ofxToggle showVectorField;
+		ofxFloatSlider vectorFieldStrenght;
+		ofxFloatSlider overallSpeed;
+		ofxFloatSlider noiseStrenght;
+		ofxFloatSlider lenghtTrail;
+		ofxColorSlider color[4];
+		ofxFloatSlider sizeDots;
+		ofxToggle fullScreen;
+		
+
 };

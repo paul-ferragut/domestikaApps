@@ -7,8 +7,8 @@ class particle
 		particle();
 
 		void setup();
-		void update();
-		void draw();
+		void update(float speed,float noise);
+		void draw(float sizeDot);
 		void repel(vector<ofVec2f>repelPt);
 		void addForce(ofVec2f addFrc);
 		

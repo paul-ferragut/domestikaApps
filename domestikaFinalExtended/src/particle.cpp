@@ -11,7 +11,7 @@ void particle::setup() {
 	uniqueVal.x = ofRandom(-10000, 10000);
 	uniqueVal.y = ofRandom(-10000, 10000);
 
-	uniqueCol = ofRandom(0, 5);
+	uniqueCol = ofRandom(0, 4);
 
 	pos.x = ofRandomWidth();
 	pos.y = ofRandomHeight();
@@ -36,7 +36,7 @@ void particle::setup() {
 }
 
 //------------------------------------------------------------------
-void particle::update() {
+void particle::update(float speed, float noise) {
 
 	//1 - APPLY THE FORCES BASED ON WHICH MODE WE ARE IN 
 	/*
@@ -83,11 +83,11 @@ void particle::update() {
 
 		vel *= drag;
 
-		vel -= repelFrc * 0.001;
+		vel -= repelFrc * 0.0001;
 
-		vel += additionalFrc*0.3;
+		vel += additionalFrc;
 
-		vel += frc * 0.2;
+		vel += frc * noise;
 
 		//we do this so as to skip the bounds check for the bottom and make the particles go back to the top of the screen
 		//if (pos.y + vel.y > ofGetHeight()) {
@@ -157,7 +157,7 @@ void particle::update() {
 
 	//2 - UPDATE OUR POSITION
 
-	pos += vel;
+	pos += vel*speed;
 
 
 	//3 - (optional) LIMIT THE PARTICLES TO STAY ON SCREEN 
@@ -215,7 +215,7 @@ void particle::addForce(ofVec2f addFrc) {
 
 
 //------------------------------------------------------------------
-void particle::draw() {
+void particle::draw(float sizeDot) {
 
 	//ofSetColor(255,255,255);
 	/*
@@ -232,5 +232,5 @@ void particle::draw() {
 		ofSetColor(103, 160, 237);
 	}*/
 
-	ofDrawCircle(pos.x, pos.y, scale);
+	ofDrawCircle(pos.x, pos.y, scale* sizeDot);
 }

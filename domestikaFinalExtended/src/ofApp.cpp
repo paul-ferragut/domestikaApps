@@ -13,12 +13,12 @@ void ofApp::setup(){
 	grayBg.allocate(camW, camH);
 	grayDiff.allocate(camW, camH);
 
-	bLearnBackground = true;
-	threshold = 80;
+	//bLearnBackground = true;
+	//threshold = 80;
 
 	ofSetVerticalSync(true);
 
-	int num = 5000;
+	int num = 10000;
 	p.assign(num, particle());
 	
 	resetParticles();
@@ -28,11 +28,28 @@ void ofApp::setup(){
 	ofSetBackgroundAuto(false);
 	ofSetFrameRate(160);
 
-	col[0]=ofColor(247, 37, 133);
-	col[1]=ofColor(114, 9, 183);
-	col[2]=ofColor(58, 12, 163);
-	col[3]=ofColor(67, 97, 238);
-	col[4]=ofColor(76, 201, 240);
+
+
+	gui.setup();
+	gui.add(fullScreen.setup("fullScreen", false));
+	gui.add(showCV.setup("showCV",true));
+	gui.add(thresholdCV.setup("thresholdCV",150,0,255));
+
+	gui.add(captureBackground.setup("captureBackground", true));
+	gui.add(showVectorField.setup("showVectorField", false));
+
+	gui.add(vectorFieldStrenght.setup("vectorFieldStrenght", 0.3, 0.0, 1.0));
+	gui.add(noiseStrenght.setup("noiseStrenght", 0.2, 0.0, 0.6));
+	gui.add(overallSpeed.setup("overallSpeed", 1.0, 0.01, 4.0));
+
+	gui.add(lenghtTrail.setup("lenghtTrail", 6.0, 0.0, 20));
+	gui.add(sizeDots.setup("sizeDots", 0.4, 0.01,5));
+	gui.add(color[0].setup("color1",ofColor(247, 37, 133), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+	gui.add(color[1].setup("color2",ofColor(114, 9, 183), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+	gui.add(color[2].setup("color3",ofColor(58, 12, 163), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+	gui.add(color[3].setup("color4",ofColor(67, 97, 238), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+
+
 
 }
 
@@ -59,17 +76,18 @@ void ofApp::update(){
 	if (bNewFrame) {
 
 		colorImg.setFromPixels(cam.getPixels());
+		colorImg.mirror(false, true);
 
 
 		grayImage = colorImg;
-		if (bLearnBackground == true) {
+		if (captureBackground == true) {
 			grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
-			bLearnBackground = false;
+			captureBackground = false;
 		}
 
 		// take the abs value of the difference between background and incoming and then threshold:
 		grayDiff.absDiff(grayBg, grayImage);
-		grayDiff.threshold(threshold);
+		grayDiff.threshold(thresholdCV);
 
 		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
 		// also, find holes is set to true so we will get interior contours as well....
@@ -77,55 +95,70 @@ void ofApp::update(){
 		
 	}
 
-	vector<ofVec2f>blobCentroids;
+	//vector<ofVec2f>blobCentroids;
+	vector<ofVec2f>blobPts;
 	for (int i = 0; i < contourFinder.nBlobs; i++) {
-		blobCentroids.push_back(contourFinder.blobs[i].centroid*6);
+		for (int j = 0; j < contourFinder.blobs[i].pts.size(); j++) {
+			blobPts.push_back(contourFinder.blobs[i].pts[j] * ofGetWidth()/camW);//*6
+			//blobCentroids.push_back(contourFinder.blobs[i].centroid*6);
+		}
 	}
 
 	vf.noiseUpdate();
 
 	for ( int i = 0; i < p.size(); i++) {
-		p[i].repel(blobCentroids);
-		p[i].addForce(vf.getForceFromPos(p[i].pos));
-		p[i].update();
+		//p[i].repel(blobCentroids);
+		p[i].repel(blobPts);
+		p[i].addForce(vf.getForceFromPos(p[i].pos)*vectorFieldStrenght);
+		p[i].update(overallSpeed, noiseStrenght);
 	}
+
+
+	if (fullScreen) {
+		ofToggleFullscreen();
+		fullScreen = false;
+	}
+
 
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 	//ofEnableAlphaBlending();
-	ofSetColor(0,0,0,6);//ofMap(ofGetMouseX(), 0,ofGetWidth(), 0,255)
+	ofSetColor(0,0,0,lenghtTrail);//ofMap(ofGetMouseX(), 0,ofGetWidth(), 0,255)
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
 
 
 
 
 	for (int i = 0; i < p.size(); i++) {
-		ofSetColor(col[p[i].uniqueCol]);
-		p[i].draw();
+		ofSetColor(color[p[i].uniqueCol]);
+		p[i].draw(sizeDots);
 	}
 
 	ofSetColor(255);
-	//vf.draw();
+	if(showVectorField){
+		vf.draw();
+	}
 
-	// draw the incoming, the grayscale, the bg and the thresholded difference
-	ofSetHexColor(0xffffff);
-	colorImg.draw(20, 20);
-	grayImage.draw(360, 20);
-	grayBg.draw(20, 280);
-	grayDiff.draw(360, 280);
+	if (showCV) {
+		// draw the incoming, the grayscale, the bg and the thresholded difference
+		ofSetHexColor(0xffffff);
+		colorImg.draw(20, 20);
+		grayImage.draw(360, 20);
+		grayBg.draw(20, 280);
+		grayDiff.draw(360, 280);
 
-	// then draw the contours:
+		// then draw the contours:
 
-	ofFill();
-	ofSetHexColor(0x333333);
-	ofDrawRectangle(360, 540, 320, 240);
-	ofSetHexColor(0xffffff);
+		ofFill();
+		ofSetHexColor(0x333333);
+		ofDrawRectangle(360, 540, 320, 240);
+		ofSetHexColor(0xffffff);
 
-	// we could draw the whole contour finder
-	contourFinder.draw(360,540);
-
+		// we could draw the whole contour finder
+		contourFinder.draw(360, 540);
+	}
 	// or, instead we can draw each blob individually from the blobs vector,
 	// this is how to get access to them:
 	/*
@@ -143,6 +176,7 @@ void ofApp::draw(){
 
 	}
 	*/
+	/*
 	// finally, a report:
 	ofSetHexColor(0xffffff);
 	stringstream reportStr;
@@ -151,8 +185,9 @@ void ofApp::draw(){
 		<< "threshold " << threshold << " (press: +/-)" << endl
 		<< "num blobs found " << contourFinder.nBlobs << ", fps: " << ofGetFrameRate();
 	ofDrawBitmapString(reportStr.str(), 20, 600);
+	*/
 
-
+	gui.draw();
 
 
 }

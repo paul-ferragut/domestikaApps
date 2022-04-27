@@ -36,3 +36,15 @@
 *.filters
 *.vcxproj
 *.sln
+*.pdb
+*.tlog
+*.recipe
+*.ipch
+*.db-wal
+*.log
+*.exp
+*.db-shm
+*.res
+*.db
+*.opendb
+domestikaFinalExtended/.vs/domestikaFinalExtended/v17/.suo

@@ -43,8 +43,8 @@ void vectorField::noiseUpdate() {
 //------------------------------------------------------------------------------------
 void vectorField::draw() {
 
-	float scaleX = (float)externalWidth / (float)fieldWidth;
-	float scaleY = (float)externalHeight / (float)fieldHeight;
+	float scaleX = (float)ofGetWidth() / (float)fieldWidth;
+	float scaleY = (float)ofGetHeight() / (float)fieldHeight;
 
 	for (int i = 0; i < fieldWidth; i++) {
 		for (int j = 0; j < fieldHeight; j++) {
@@ -82,8 +82,8 @@ ofVec2f vectorField::getForceFromPos(ofVec2f pos)
 
 	//convert pos to percent
 	ofVec2f posPct;
-	posPct.x = pos.x / (float)externalWidth;
-	posPct.y = pos.y / (float)externalHeight;
+	posPct.x = pos.x / (float)ofGetWidth();
+	posPct.y = pos.y / (float)ofGetHeight();
 
 	//position in the field
 	int fieldPosX = (int)(posPct.x * fieldWidth);
