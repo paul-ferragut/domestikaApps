@@ -24,6 +24,7 @@ void ofApp::setup(){
 	
 	resetParticles();
 
+	//Extra vector field for organic movement
 	vf.setup(ofGetWidth()/50, ofGetHeight()/50, ofGetWidth(), ofGetHeight());
 
 	ofSetBackgroundAuto(false);
@@ -58,8 +59,6 @@ void ofApp::setup(){
 void ofApp::resetParticles() {
 
 	//these are the attraction points used in the forth demo 
-	
-
 	for (int i = 0; i < p.size(); i++) {
 		p[i].setup();
 	}
@@ -82,7 +81,7 @@ void ofApp::update(){
 
 		grayImage = colorImg;
 		if (captureBackground == true) {
-			grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
+			grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg 
 			captureBackground = false;
 		}
 
@@ -90,9 +89,9 @@ void ofApp::update(){
 		grayDiff.absDiff(grayBg, grayImage);
 		grayDiff.threshold(thresholdCV);
 
-		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+		// find contours 
 		// also, find holes is set to true so we will get interior contours as well....
-		contourFinder.findContours(grayDiff, 800, (340 * 240) / 3, 10, true);	// find holes
+		contourFinder.findContours(grayDiff, 200, (camW * camH) *0.9, 10, true);	// find holes
 		
 	}
 
@@ -110,6 +109,7 @@ void ofApp::update(){
 	for ( int i = 0; i < p.size(); i++) {
 		//p[i].repel(blobCentroids);
 		p[i].repel(blobPts);
+		//Extra vector field for organic movement
 		p[i].addForce(vf.getForceFromPos(p[i].pos)*vectorFieldStrenght);
 		p[i].update(overallSpeed, noiseStrenght);
 	}
